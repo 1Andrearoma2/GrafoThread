@@ -3,14 +3,17 @@ import it.itisgalileiroma.models.*;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ThreadGrafo extends Thread{
+
     @Override
     public void run(){
         ArrayList<Node> nodi = new ArrayList<>();
         int nNodi = 0;
         int nArchi = 0;
         Scanner s = new Scanner(System.in);
+        HashMap<Node, ArrayList<Edge>> grafo = new HashMap<>();
         while (true){
             System.out.println("Quanti nodi vuoi?");
             try {
@@ -36,7 +39,7 @@ public class ThreadGrafo extends Thread{
                 }
             }
         }
-        Graph grafo = new Graph(nodi);
+        Graph g = new Graph(nodi);
 
         // Creazione archi grafo
         while (true) {
@@ -54,7 +57,7 @@ public class ThreadGrafo extends Thread{
             int idSorgente = 0;
             int idDestinatario = 0;
             while (true) {
-                System.out.println("Inserisci l'ID del nodo sorgente riguardo all'arco n." + (i+1));
+                System.out.println((i+1) + ". " + "Inserisci l'ID del nodo sorgente");
                 try {
                     idSorgente = s.nextInt();
                     boolean exists = false;
@@ -75,7 +78,7 @@ public class ThreadGrafo extends Thread{
             }
 
             while (true) {
-                System.out.println("Inserisci l'ID del nodo destinatario riguardo all'arco n." + (i+1));
+                System.out.println((i+1) + ". " + "Inserisci l'ID del nodo destinatario");
                 try {
                     idDestinatario = s.nextInt();
                     boolean exists = false;
@@ -94,17 +97,38 @@ public class ThreadGrafo extends Thread{
                     s.next();
                 }
             }
-            grafo.addEdge(new Edge(grafo.getNode(idSorgente), grafo.getNode(idDestinatario), 0));
+            g.addEdge(new Edge(g.getNode(idSorgente), g.getNode(idDestinatario), 0));
         }
-        System.out.println("Grafo creato!");
-        System.out.print("Nodi grafo: ");
-        for (Node n : grafo.nodes()){
-            System.out.print(n.id() + " ");
+
+        // Creazione Hashmap
+        for (Node n : nodi){
+            ArrayList<Edge> edgeLinked = new ArrayList<>();
+            for (Edge e : g.edges()){
+                if (e.source().equals(n) || e.target().equals(e)){
+                    edgeLinked.add(e);
+                }
+            }
+            grafo.put(n, edgeLinked);
         }
-        System.out.println();
-        System.out.print("Archi grafo: ");
-        for (Edge e : grafo.edges()){
-            System.out.print(e.source().id() + "->" + e.target().id() + " ");
+
+        // Output Hashmap
+        System.out.println("Grafo Completo:");
+        for (Node n : grafo.keySet()){
+            ArrayList<Integer> LinkedNode = new ArrayList<>();
+            System.out.print("Nodo n." + n.id() + " -> ");
+            for (Edge e : grafo.get(n)){
+                if (!LinkedNode.contains(e.source().id()) && e.source().id() != n.id()){
+                    LinkedNode.add(e.source().id());
+                }
+                if (!LinkedNode.contains(e.target().id()) && e.target().id() != n.id()){
+                    LinkedNode.add(e.target().id());
+                }
+            }
+            for (int id : LinkedNode){
+                System.out.print(id + " ");
+            }
+            System.out.println();
         }
+
     }
 }
